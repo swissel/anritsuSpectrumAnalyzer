@@ -14,3 +14,10 @@ print(stat, read)
 read = sa.query("*IDN?\n")
 print(read)
 
+# Read a header
+head = sa.query(":TRAC:PRE?\n")
+print(head)
+data = sa.quert(":TRAC:DATA?\n")
+print(data)
+
+
