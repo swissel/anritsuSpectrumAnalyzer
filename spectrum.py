@@ -5,7 +5,7 @@ import time
 import datetime
 import pandas as pd
 import visa
-
+import sys
 
 class SpectrumAnalyzer():
 
@@ -76,7 +76,7 @@ class SpectrumAnalyzer():
 
         # Polarization -- either H or V
         self.pol = pol
-        if((self.pol == None) or (self.pol != 'H' and self.freqband != 'V')):
+        if((self.pol == None) or (self.pol != 'H' and self.pol != 'V')):
             self.pol = input("Polarization? (H/V)")
         # Weather -- whatever you like
         self.weather = weather
@@ -286,8 +286,11 @@ class SpectrumAnalyzer():
 
 if __name__ == '__main__':
 
+	dirc = '/home/radio/data/specAnalyzer'
+	if( len(sys.argv) > 1):
+		dirc = sys.argv[1]
 	# Setup
-	specAnal = SpectrumAnalyzer(dirc='/home/radio/data/specAnalyzer')
+	specAnal = SpectrumAnalyzer(dirc=dirc)
 
 	# Read the identificaiton string
 	stat = specAnal.sa.write("*IDN?\n")
@@ -299,7 +302,7 @@ if __name__ == '__main__':
 
 	# read the data
 	# specAnal.readSpectrum()
-	specAnal.readSpectrogram(nspectra=1)
+	specAnal.readSpectrogram(nspectra=2)
 	specAnal.sa.close()
 	specAnal.writeSpectrum()
 	# specAnal.plotSpectrum()
