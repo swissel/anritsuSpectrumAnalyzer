@@ -203,7 +203,7 @@ class SpectrumAnalyzer():
 
         #print(("Writing data to %s%s" % (self.dirc, self.outputFileName)))
         self.run_header.to_hdf(self.dirc + self.outputFileName,
-                               key='header', mode='a', )
+                               key='run_header', mode='a', )
         self.headerStored = True
 
         headDf = pd.DataFrame(self.headStream)
@@ -286,7 +286,7 @@ class SpectrumAnalyzer():
 
 if __name__ == '__main__':
 
-	dirc = '/home/radio/data/specAnalyzer'
+	dirc = '/home/radio/data/beacon_august2018/20180809/'
 	if( len(sys.argv) > 1):
 		dirc = sys.argv[1]
 	# Setup
