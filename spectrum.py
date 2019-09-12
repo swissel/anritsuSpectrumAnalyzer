@@ -76,8 +76,8 @@ class SpectrumAnalyzer():
 
         # Polarization -- either H or V
         self.pol = pol
-        if((self.pol == None) or (self.pol != 'H' and self.pol != 'V')):
-            self.pol = input("Polarization? (H/V)")
+        if((self.pol == None) or (self.pol != 'H' and self.pol != 'V' and self.pol != 'None')):
+            self.pol = input("Polarization? (H/V/None)")
         # Weather -- whatever you like
         self.weather = weather
         if((self.weather == None)):
@@ -286,10 +286,11 @@ class SpectrumAnalyzer():
 
 if __name__ == '__main__':
 
-	dirc = '/home/radio/data/beacon_august2018/20180809/'
+	dirc = '/home/radio/data/beacon/201910/'
 	if( len(sys.argv) > 1):
 		dirc = sys.argv[1]
-	# Setup
+	
+        # Setup
 	specAnal = SpectrumAnalyzer(dirc=dirc)
 
 	# Read the identificaiton string
@@ -300,9 +301,9 @@ if __name__ == '__main__':
 	idn = specAnal.sa.query("*IDN?\n")
 	print(idn)
 
-	# read the data
+	# read the data -- runs for about 5 minutes with 30 spectra
 	# specAnal.readSpectrum()
-	specAnal.readSpectrogram(nspectra=2)
+	specAnal.readSpectrogram(nspectra=30)
 	specAnal.sa.close()
 	specAnal.writeSpectrum()
 	# specAnal.plotSpectrum()
