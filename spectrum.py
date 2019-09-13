@@ -21,7 +21,17 @@ class SpectrumAnalyzer():
         self.headStream = {}
         self.dataStream = {}
 
-        self.getCommonInfo(run=run, freqband=freqband, boxno=boxno, pol=pol, weather=weather, daynight=daynight, before_stage1_attenfilter=before_stage1_attenfilter, after_stage2_attenfilter=after_stage2_attenfilter, comments=comments)
+	# time stamp
+        self.timestamp = time.time()
+        self.datestr = datetime.datetime.fromtimestamp(
+            self.timestamp).strftime("%Y-%m-%d_%H-%M-%S")
+
+	# use the run number and date-time to name the output file
+        self.run = run
+        self.outputFileName = "specanalyzer_run%d_%s.hdf5" % (self.run, self.datestr)
+        print("File name %s" % self.outputFileName)
+
+        #self.getCommonInfo(run=run, freqband=freqband, boxno=boxno, pol=pol, weather=weather, daynight=daynight, before_stage1_attenfilter=before_stage1_attenfilter, after_stage2_attenfilter=after_stage2_attenfilter, comments=comments)
 
         self.setupSpectrumAnalyzer()
 
@@ -112,8 +122,8 @@ class SpectrumAnalyzer():
         print("....The minimum sweep time is = 2.5 * span / (RBW * VBW)")
         self.ntraces = float(self.sa.query("SENS:AVER:COUN?"))
         self.spec_time = self.sweep_time * self.ntraces
-        print("Setting time between spectra to sweeptime ( %3.3e ms)x ntraces (%d) = %3.3e s " % (
-            self.sweep_time/1e3, self.ntraces, self.spec_time))
+        print("Setting time between spectra to sweeptime ( %3.3e ms)x ntraces (%d) = %3.3e ms " % (
+            self.sweep_time, self.ntraces, self.spec_time))
 
     def readHeader(self):
         headStr = self.sa.query("TRAC:PRE?\n")
@@ -187,20 +197,20 @@ class SpectrumAnalyzer():
             # read a spectrum
             head, freq_hz, data = self.readSpectrum()
             # wait for spectrum to reset
-            # time.sleep(self.spec_time)
+            time.sleep(self.sweep_time)
 
     def writeSpectrum(self):
         print("Writing data to %s%s" % (self.dirc, self.outputFileName))
 
         # Store all the header information in a dataframe
-        self.run_header = pd.DataFrame({'run': self.run, 'timestamp': self.timestamp, 'filename': self.outputFileName,
-                                        'freqband': self.freqband, 'pol': self.pol, 'weather': self.weather,
-                                        'daynight': self.daynight, 'comments': self.comments,
-                                        'boxno': self.boxno, 
-                                        'before_stage1_attenfilter':self.before_stage1_attenfilter,
-                                        'after_stage2_attenfilter':self.after_stage2_attenfilter
-                                        }, index=[0])
-
+        #self.run_header = pd.DataFrame({'run': self.run, 'timestamp': self.timestamp, 'filename': self.outputFileName,
+        #                                'freqband': self.freqband, 'pol': self.pol, 'weather': self.weather,
+        #                                'daynight': self.daynight, 'comments': self.comments,
+        #                                'boxno': self.boxno, 
+        #                                'before_stage1_attenfilter':self.before_stage1_attenfilter,
+        #                                'after_stage2_attenfilter':self.after_stage2_attenfilter
+        #                                }, index=[0])
+        self.run_header = pd.DataFrame({'run': self.run, 'timestamp': self.timestamp, 'filename': self.outputFileName}, index=[0])
         #print(("Writing data to %s%s" % (self.dirc, self.outputFileName)))
         self.run_header.to_hdf(self.dirc + self.outputFileName,
                                key='run_header', mode='a', )
@@ -290,8 +300,16 @@ if __name__ == '__main__':
 	if( len(sys.argv) > 1):
 		dirc = sys.argv[1]
 	
+	run=1
+	if( len(sys.argv) > 2):
+		run = int(sys.argv[2])	
+
+	nspectra = 30
+	if( len(sys.argv) > 3):
+		nspectra = int(sys.argv[3])
+
         # Setup
-	specAnal = SpectrumAnalyzer(dirc=dirc)
+	specAnal = SpectrumAnalyzer(dirc=dirc, run=run)
 
 	# Read the identificaiton string
 	stat = specAnal.sa.write("*IDN?\n")
@@ -303,9 +321,9 @@ if __name__ == '__main__':
 
 	# read the data -- runs for about 5 minutes with 30 spectra
 	# specAnal.readSpectrum()
-	specAnal.readSpectrogram(nspectra=30)
+	specAnal.readSpectrogram(nspectra=nspectra)
 	specAnal.sa.close()
 	specAnal.writeSpectrum()
 	# specAnal.plotSpectrum()
-	specAnal.plotSpectrogram()
-	pyp.show()
+	#specAnal.plotSpectrogram()
+	#pyp.show()
