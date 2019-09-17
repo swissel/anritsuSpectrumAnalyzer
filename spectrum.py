@@ -197,7 +197,7 @@ class SpectrumAnalyzer():
             # read a spectrum
             head, freq_hz, data = self.readSpectrum()
             # wait for spectrum to reset
-            time.sleep(self.sweep_time)
+            #time.sleep(self.sweep_time)
 
     def writeSpectrum(self):
         print("Writing data to %s%s" % (self.dirc, self.outputFileName))
